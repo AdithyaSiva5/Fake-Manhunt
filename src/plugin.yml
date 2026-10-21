@@ -1,0 +1,15 @@
+name: FakeManhunt
+version: 1.0.0
+main: fakemanhunt.FakeManhunt
+api-version: '26.1'
+description: Only saves the world when you run /save; /load rolls back to the last save.
+commands:
+  save:
+    description: Save the current world state as the restore point
+    permission: fakemanhunt.use
+  load:
+    description: Roll the world back to the last /save
+    permission: fakemanhunt.use
+permissions:
+  fakemanhunt.use:
+    default: op
