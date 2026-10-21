@@ -20,7 +20,7 @@ Everything is in one jar, and every feature can be switched on or off in `config
 
 ## Installation
 
-1. Download [`FakeManhunt.jar`](FakeManhunt.jar) and put it in your server's `plugins/` folder.
+1. Download `FakeManhunt.jar` from the [latest release](https://github.com/AdithyaSiva5/Fake-Manhunt/releases/latest) and put it in your server's `plugins/` folder.
 2. Copy [`start.sh`](start.sh) into your server folder, next to `paper.jar`, and make it executable:
    ```bash
    chmod +x start.sh
