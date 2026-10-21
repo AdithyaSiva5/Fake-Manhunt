@@ -29,6 +29,7 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
     private Path serverDir;
     private Path snapshotDir;   // last /save lives here
     private Path restartFlag;   // tells start.sh to restore + restart instead of exiting
+    private Immortality immortality;
 
     @Override
     public void onEnable() {
@@ -37,7 +38,15 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
         restartFlag = serverDir.resolve("restart.flag");
         try { Files.deleteIfExists(restartFlag); } catch (IOException ignored) { }
 
+        saveDefaultConfig();
+        immortality = new Immortality(this);
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(immortality, this);
+        getServer().getPluginManager().registerEvents(new BoostedBarter(this), this);
+        if (!saveLoadEnabled()) {
+            getLogger().info("/save and /load are disabled in config.yml; autosave left on.");
+            return;
+        }
         Bukkit.getWorlds().forEach(w -> w.setAutoSave(false));
 
         // First ever start: take the starting state as the initial restore point.
@@ -49,9 +58,13 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
         getLogger().info("Autosave disabled. Use /save and /load.");
     }
 
+    private boolean saveLoadEnabled() {
+        return getConfig().getBoolean("save-load.enabled");
+    }
+
     @EventHandler
     public void onWorldLoad(WorldLoadEvent e) {
-        e.getWorld().setAutoSave(false);
+        if (saveLoadEnabled()) e.getWorld().setAutoSave(false);
     }
 
     /** Players keep typing vanilla /save-all, which never updates the snapshot; treat it as /save. */
@@ -59,6 +72,7 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
     public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
         String name = e.getMessage().substring(1).split(" ", 2)[0].toLowerCase();
         if (!name.equals("save-all") && !name.equals("minecraft:save-all")) return;
+        if (!saveLoadEnabled() || !getConfig().getBoolean("save-load.save-all-is-save")) return;
         if (!e.getPlayer().hasPermission("fakemanhunt.use")) return;
         e.setCancelled(true);
         save(e.getPlayer());
@@ -66,7 +80,21 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        switch (cmd.getName().toLowerCase()) {
+        String name = cmd.getName().toLowerCase();
+        if ((name.equals("save") || name.equals("load")) && !saveLoadEnabled()) {
+            sender.sendMessage("§c[Manhunt] /save and /load are disabled in config.yml.");
+            return true;
+        }
+        switch (name) {
+            case "manhunt" -> {
+                if (args.length != 1 || !args[0].equalsIgnoreCase("reload")) return false;
+                reloadConfig();
+                sender.sendMessage("§a[Manhunt] Config reloaded.");
+            }
+            case "immortal" -> {
+                if (getConfig().getBoolean("immortal.enabled")) immortality.toggle(sender, args);
+                else sender.sendMessage("§c[Manhunt] /immortal is disabled in config.yml.");
+            }
             case "save" -> save(sender);
             case "load" -> {
                 if (saving) {
@@ -84,7 +112,7 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
                     return true;
                 }
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.kickPlayer("§e[Manhunt] Loading last save...\n§7Rejoin in ~30 seconds.");
+                    p.kickPlayer(getConfig().getString("save-load.load-kick-message"));
                 }
                 Bukkit.shutdown(); // start.sh restores the snapshot and starts the server again
             }

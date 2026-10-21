@@ -1,0 +1,52 @@
+# ==========================================================
+#                   Fake-Manhunt config
+# ==========================================================
+# Edit this file, then run /manhunt reload (or restart the server).
+# Every feature can be switched off with enabled: false.
+
+# ----------------------------------------------------------
+# /save and /load
+# ----------------------------------------------------------
+# Autosave is turned off. The world only keeps progress when someone runs /save,
+# and /load rolls everything back to that point.
+# /load needs the included start.sh to restart and restore the server.
+save-load:
+  enabled: true
+  # Treat the vanilla /save-all command as /save, so it updates the restore point.
+  save-all-is-save: true
+  # Message shown to players when /load kicks them.
+  load-kick-message: "§e[Manhunt] Loading last save...\n§7Rejoin in ~30 seconds."
+
+# ----------------------------------------------------------
+# /immortal
+# ----------------------------------------------------------
+# Immortal players still take damage (knockback, hurt sound, red flash)
+# but their health never drops below min-health.
+immortal:
+  enabled: true
+  # Lowest health an immortal player can reach. 1.0 = half a heart, 20.0 = full health.
+  min-health: 1.0
+  # Let /kill still kill immortal players (handy to escape the void).
+  allow-kill-command: true
+
+# ----------------------------------------------------------
+# Boosted piglin bartering
+# ----------------------------------------------------------
+# Chance (0-100) for each barter to be replaced with the item below.
+# Rolled in order; anything left over falls back to the normal vanilla drop.
+# Keep the three chances adding up to 100 or less.
+# Vanilla rates are roughly: pearl 2.2%, fire resistance 3.5%, obsidian 8.7%.
+barter:
+  enabled: true
+  ender-pearl:
+    chance: 50
+    min: 4
+    max: 8
+  fire-resistance:
+    chance: 20
+    # % of fire resistance drops that are splash potions.
+    splash-chance: 30
+  obsidian:
+    chance: 25
+    min: 1
+    max: 3

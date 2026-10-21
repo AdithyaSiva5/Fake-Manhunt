@@ -1,8 +1,8 @@
 name: FakeManhunt
-version: 1.0.0
+version: 1.1.0
 main: fakemanhunt.FakeManhunt
 api-version: '26.1'
-description: Only saves the world when you run /save; /load rolls back to the last save.
+description: Manhunt tools - /save and /load the world, /immortal, and boosted piglin bartering.
 commands:
   save:
     description: Save the current world state as the restore point
@@ -10,6 +10,18 @@ commands:
   load:
     description: Roll the world back to the last /save
     permission: fakemanhunt.use
+  immortal:
+    description: Toggle immortality (you still take damage, but can't die)
+    usage: /immortal [player]
+    permission: fakemanhunt.immortal
+  manhunt:
+    description: Reload the Fake-Manhunt config
+    usage: /manhunt reload
+    permission: fakemanhunt.reload
 permissions:
   fakemanhunt.use:
+    default: op
+  fakemanhunt.immortal:
+    default: op
+  fakemanhunt.reload:
     default: op
