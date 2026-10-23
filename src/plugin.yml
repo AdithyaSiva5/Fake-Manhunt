@@ -1,8 +1,8 @@
 name: FakeManhunt
-version: 1.1.0
+version: 1.2.0
 main: fakemanhunt.FakeManhunt
 api-version: '26.1'
-description: Manhunt tools - /save and /load the world, /immortal, and boosted piglin bartering.
+description: Manhunt tools - /save and /load the world, /qsave and /qload players, /immortal, and boosted piglin bartering.
 commands:
   save:
     description: Save the current world state as the restore point
@@ -10,9 +10,18 @@ commands:
   load:
     description: Roll the world back to the last /save
     permission: fakemanhunt.use
+  qsave:
+    description: Quick save - players' position, health, hunger, inventory and armor (no restart)
+    aliases: [quicksave, minisave]
+    permission: fakemanhunt.use
+  qload:
+    description: Quick load - put players back to the last /qsave instantly (world is not reset)
+    usage: /qload [player]
+    aliases: [quickload, miniload]
+    permission: fakemanhunt.use
   immortal:
-    description: Toggle immortality (you still take damage, but can't die)
-    usage: /immortal [player]
+    description: Immortality - damage mode takes hits but can't die, nodamage mode ignores hits
+    usage: /immortal [damage|nodamage|off] [player]
     permission: fakemanhunt.immortal
   manhunt:
     description: Reload the Fake-Manhunt config

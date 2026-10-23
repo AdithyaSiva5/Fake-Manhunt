@@ -9,7 +9,8 @@ Everything is in one jar, and every feature can be switched on or off in `config
 | Feature | What it does |
 |---|---|
 | **/save and /load** | Autosave is off. Progress only sticks when you run `/save`. `/load` kicks everyone, restores the world to the last save and restarts the server. |
-| **/immortal** | Toggle immortality for yourself or another player. You still take hits (knockback, hurt sound, red flash), but your health never drops below half a heart. |
+| **/qsave and /qload** | Instant player-only save. Puts everyone back where they were (position, health, hunger, saturation, inventory, armor, XP, effects, time and weather) without restarting or kicking anyone. Blocks are not rolled back. |
+| **/immortal** | Two modes. `damage`: you take hits (knockback, hurt sound, red flash) but never drop below half a heart, so PvP looks normal. `nodamage`: hits are cancelled with no hurt effect, so a failed clutch doesn't give it away. |
 | **Boosted bartering** | Piglins hand out ender pearls, fire resistance potions and obsidian far more often. Default pearl rate is 50% (vanilla is about 2%). |
 
 ## Requirements
@@ -40,7 +41,10 @@ Everything is in one jar, and every feature can be switched on or off in `config
 |---|---|---|
 | `/save` | Save the world as the new restore point. `/save-all` does the same thing. | `fakemanhunt.use` |
 | `/load` | Roll the world back to the last `/save`. Kicks everyone; rejoin after about 30 seconds. | `fakemanhunt.use` |
-| `/immortal [player]` | Toggle immortality for yourself or the named player. | `fakemanhunt.immortal` |
+| `/qsave` | Quick save of all online players, plus time and weather. Aliases: `/quicksave`, `/minisave`. | `fakemanhunt.use` |
+| `/qload [player]` | Instantly put everyone (or just one player) back to the last `/qsave`. Aliases: `/quickload`, `/miniload`. | `fakemanhunt.use` |
+| `/immortal [player]` | Toggle `damage` mode immortality for yourself or the named player. | `fakemanhunt.immortal` |
+| `/immortal damage\|nodamage\|off [player]` | Set a specific mode, or turn it off. | `fakemanhunt.immortal` |
 | `/manhunt reload` | Reload `config.yml` without restarting. | `fakemanhunt.reload` |
 
 All permissions default to **OP only**.
@@ -54,6 +58,9 @@ save-load:
   enabled: true
   save-all-is-save: true        # /save-all also updates the restore point
   load-kick-message: "§e[Manhunt] Loading last save...\n§7Rejoin in ~30 seconds."
+
+quick-save:
+  enabled: true
 
 immortal:
   enabled: true
@@ -79,7 +86,7 @@ barter:
 
 Vanilla rates for comparison: pearls about 2.2%, fire resistance about 3.5%, obsidian about 8.7%.
 
-The immortal player list is stored separately in `plugins/FakeManhunt/immortal-players.yml`, outside the world folder, so it survives `/load`.
+The quick save is stored in `plugins/FakeManhunt/quicksave.yml` and the immortal player list separately in `plugins/FakeManhunt/immortal-players.yml`. Both live outside the world folder, so they survive `/load`.
 
 ## How /save and /load work
 

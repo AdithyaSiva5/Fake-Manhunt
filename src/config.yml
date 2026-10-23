@@ -18,10 +18,23 @@ save-load:
   load-kick-message: "§e[Manhunt] Loading last save...\n§7Rejoin in ~30 seconds."
 
 # ----------------------------------------------------------
+# /qsave and /qload
+# ----------------------------------------------------------
+# Instant player-only save: position, health, hunger, saturation, inventory,
+# armor, XP, potion effects, ender chest, plus time and weather.
+# Blocks are NOT rolled back - use /save and /load for that.
+quick-save:
+  enabled: true
+
+# ----------------------------------------------------------
 # /immortal
 # ----------------------------------------------------------
-# Immortal players still take damage (knockback, hurt sound, red flash)
-# but their health never drops below min-health.
+# Two modes:
+#   /immortal damage   - you still take hits (knockback, hurt sound, red flash)
+#                        but health never drops below min-health. Looks normal in PvP.
+#   /immortal nodamage - hits are cancelled completely, no hurt effect at all.
+#                        Use it for clutches so a big fall doesn't look suspicious.
+# Plain /immortal toggles damage mode. /immortal off turns it off.
 immortal:
   enabled: true
   # Lowest health an immortal player can reach. 1.0 = half a heart, 20.0 = full health.
