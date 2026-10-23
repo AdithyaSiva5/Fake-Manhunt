@@ -31,6 +31,7 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
     private Path restartFlag;   // tells start.sh to restore + restart instead of exiting
     private Immortality immortality;
     private QuickSave quickSave;
+    private Clutch clutch;
 
     @Override
     public void onEnable() {
@@ -42,8 +43,10 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
         saveDefaultConfig();
         immortality = new Immortality(this);
         quickSave = new QuickSave(this);
+        clutch = new Clutch(this);
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(immortality, this);
+        getServer().getPluginManager().registerEvents(clutch, this);
         getServer().getPluginManager().registerEvents(new BoostedBarter(this), this);
         if (!saveLoadEnabled()) {
             getLogger().info("/save and /load are disabled in config.yml; autosave left on.");
@@ -96,6 +99,10 @@ public final class FakeManhunt extends JavaPlugin implements Listener {
             case "immortal" -> {
                 if (getConfig().getBoolean("immortal.enabled")) immortality.toggle(sender, args);
                 else sender.sendMessage("§c[Manhunt] /immortal is disabled in config.yml.");
+            }
+            case "clutch" -> {
+                if (getConfig().getBoolean("clutch.enabled", true)) clutch.toggle(sender, args);
+                else sender.sendMessage("§c[Manhunt] /clutch is disabled in config.yml.");
             }
             case "qsave", "qload" -> {
                 if (!getConfig().getBoolean("quick-save.enabled", true)) {

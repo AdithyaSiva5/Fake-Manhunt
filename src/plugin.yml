@@ -1,8 +1,8 @@
 name: FakeManhunt
-version: 1.2.0
+version: 1.3.0
 main: fakemanhunt.FakeManhunt
 api-version: '26.1'
-description: Manhunt tools - /save and /load the world, /qsave and /qload players, /immortal, and boosted piglin bartering.
+description: Manhunt tools - /save and /load the world, /qsave and /qload players, /immortal, /clutch, and boosted piglin bartering.
 commands:
   save:
     description: Save the current world state as the restore point
@@ -23,6 +23,10 @@ commands:
     description: Immortality - damage mode takes hits but can't die, nodamage mode ignores hits
     usage: /immortal [damage|nodamage|off] [player]
     permission: fakemanhunt.immortal
+  clutch:
+    description: Clutch assist - every clutch (water, boat, slime, pearl, wind charge...) lands
+    usage: /clutch [on|off] [player]
+    permission: fakemanhunt.clutch
   manhunt:
     description: Reload the Fake-Manhunt config
     usage: /manhunt reload
@@ -31,6 +35,8 @@ permissions:
   fakemanhunt.use:
     default: op
   fakemanhunt.immortal:
+    default: op
+  fakemanhunt.clutch:
     default: op
   fakemanhunt.reload:
     default: op

@@ -52,8 +52,8 @@ final class QuickSave {
             s.set("air", p.getRemainingAir());
             s.set("level", p.getLevel());
             s.set("exp", (double) p.getExp());
-            s.set("inventory", p.getInventory().getContents());
-            s.set("ender-chest", p.getEnderChest().getContents());
+            s.set("inventory", copy(p.getInventory().getContents()));
+            s.set("ender-chest", copy(p.getEnderChest().getContents()));
             s.set("effects", List.copyOf(p.getActivePotionEffects()));
         }
         for (World w : Bukkit.getWorlds()) {
@@ -72,6 +72,17 @@ final class QuickSave {
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         Bukkit.broadcastMessage("§a[Manhunt] Quick save at " + time + " ("
                 + Bukkit.getOnlinePlayers().size() + " players). /qload will return here.");
+    }
+
+    /**
+     * getContents() hands back live views of the stacks, so anything that changes the inventory
+     * later would change the save too. Store copies, as a List so /qload can read it back
+     * without a restart.
+     */
+    private static List<ItemStack> copy(ItemStack[] items) {
+        List<ItemStack> out = new java.util.ArrayList<>(items.length);
+        for (ItemStack i : items) out.add(i == null ? null : i.clone());
+        return out;
     }
 
     /** Restores every saved player who is online, or just {@code only} if given. */

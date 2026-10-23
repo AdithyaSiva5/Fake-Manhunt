@@ -1,6 +1,6 @@
 # Fake-Manhunt
 
-A Paper plugin for recording "fake" Minecraft manhunts: save the world at any point, roll back when a take goes wrong, make the runner (or hunters) unkillable, and get ender pearls from piglins without grinding.
+A Paper plugin for recording "fake" Minecraft manhunts: save the world at any point, roll back when a take goes wrong, make the runner (or hunters) unkillable, never miss a clutch, and get ender pearls from piglins without grinding.
 
 Everything is in one jar, and every feature can be switched on or off in `config.yml`.
 
@@ -11,6 +11,7 @@ Everything is in one jar, and every feature can be switched on or off in `config
 | **/save and /load** | Autosave is off. Progress only sticks when you run `/save`. `/load` kicks everyone, restores the world to the last save and restarts the server. |
 | **/qsave and /qload** | Instant player-only save. Puts everyone back where they were (position, health, hunger, saturation, inventory, armor, XP, effects, time and weather) without restarting or kicking anyone. Blocks are not rolled back. |
 | **/immortal** | Two modes. `damage`: you take hits (knockback, hurt sound, red flash) but never drop below half a heart, so PvP looks normal. `nodamage`: hits are cancelled with no hurt effect, so a failed clutch doesn't give it away. |
+| **/clutch** | Every clutch lands. Right-click with a water bucket, powder snow bucket, boat, slime block, hay bale, honey block, cobweb, scaffolding, twisting vines, ender pearl or wind charge while falling, and the server does the clutch right before you land. It still works if the click was a bit early, slightly off the block, or a held right-click that repeated too slowly. |
 | **Boosted bartering** | Piglins hand out ender pearls, fire resistance potions and obsidian far more often. Default pearl rate is 50% (vanilla is about 2%). |
 
 ## Requirements
@@ -45,6 +46,8 @@ Everything is in one jar, and every feature can be switched on or off in `config
 | `/qload [player]` | Instantly put everyone (or just one player) back to the last `/qsave`. Aliases: `/quickload`, `/miniload`. | `fakemanhunt.use` |
 | `/immortal [player]` | Toggle `damage` mode immortality for yourself or the named player. | `fakemanhunt.immortal` |
 | `/immortal damage\|nodamage\|off [player]` | Set a specific mode, or turn it off. | `fakemanhunt.immortal` |
+| `/clutch [player]` | Toggle clutch assist for yourself or the named player. | `fakemanhunt.clutch` |
+| `/clutch on\|off [player]` | Turn clutch assist on or off. | `fakemanhunt.clutch` |
 | `/manhunt reload` | Reload `config.yml` without restarting. | `fakemanhunt.reload` |
 
 All permissions default to **OP only**.
@@ -67,6 +70,14 @@ immortal:
   min-health: 1.0               # 1.0 = half a heart, 20.0 = full health
   allow-kill-command: true      # /kill still works on immortal players
 
+clutch:
+  enabled: true
+  window-blocks: 6              # a click this close to the ground still counts...
+  window-ticks: 10              # ...or this close to landing on fast falls (20 ticks = 1 second)
+  auto-pickup-water: false      # scoop the water back up after a water clutch
+  pickup-delay-ticks: 10
+  boat-auto-enter: true         # put the player in the boat when they land on it
+
 barter:
   enabled: true
   ender-pearl:
@@ -86,7 +97,7 @@ barter:
 
 Vanilla rates for comparison: pearls about 2.2%, fire resistance about 3.5%, obsidian about 8.7%.
 
-The quick save is stored in `plugins/FakeManhunt/quicksave.yml` and the immortal player list separately in `plugins/FakeManhunt/immortal-players.yml`. Both live outside the world folder, so they survive `/load`.
+The quick save is stored in `plugins/FakeManhunt/quicksave.yml`, the immortal player list in `plugins/FakeManhunt/immortal-players.yml`, and the clutch player list in `plugins/FakeManhunt/clutch-players.yml`. All three live outside the world folder, so they survive `/load`.
 
 ## How /save and /load work
 

@@ -43,6 +43,26 @@ immortal:
   allow-kill-command: true
 
 # ----------------------------------------------------------
+# /clutch
+# ----------------------------------------------------------
+# Players with /clutch on never miss a clutch. Right-click with a clutch item while
+# falling and the server does the clutch for you right before you land, even if the
+# click was a bit early, slightly off the block, or a held click that repeated too slowly.
+# Works with: water bucket, powder snow bucket, any boat or raft, slime block,
+# hay bale, honey block, cobweb, scaffolding, twisting vines, ender pearl, wind charge.
+clutch:
+  enabled: true
+  # How early a click still counts: within this many blocks of the ground...
+  window-blocks: 6
+  # ...or within this many ticks of landing (helps on long, fast falls). 20 ticks = 1 second.
+  window-ticks: 10
+  # Scoop the water back up automatically after a water clutch.
+  auto-pickup-water: false
+  pickup-delay-ticks: 10
+  # Put the player in the boat when they land on it.
+  boat-auto-enter: true
+
+# ----------------------------------------------------------
 # Boosted piglin bartering
 # ----------------------------------------------------------
 # Chance (0-100) for each barter to be replaced with the item below.
