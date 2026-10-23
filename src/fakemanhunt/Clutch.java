@@ -45,6 +45,7 @@ final class Clutch implements Listener {
     private record Armed(EquipmentSlot hand, Material item, Kind kind, int expires) { }
     private record Ground(Block block, double dist) { }
     private record Mount(Entity boat, int expires) { }
+    private static final class Bounce { double speed; int expires; }
 
     private static final Set<Material> BLOCKS = EnumSet.of(Material.SLIME_BLOCK, Material.HAY_BLOCK,
             Material.HONEY_BLOCK, Material.COBWEB, Material.SCAFFOLDING, Material.TWISTING_VINES);
@@ -56,6 +57,8 @@ final class Clutch implements Listener {
     private final Map<UUID, Armed> armed = new HashMap<>();
     private final Map<UUID, Integer> safeUntil = new HashMap<>();
     private final Map<UUID, Mount> mounts = new HashMap<>();
+    // Slime clutches waiting to see the player bounce; if the client lands without bouncing, the server bounces them.
+    private final Map<UUID, Bounce> bounces = new HashMap<>();
     // Server-side fall speed in blocks/tick, measured from position changes (player velocity isn't reliable).
     private final Map<UUID, double[]> lastY = new HashMap<>();
 
@@ -172,6 +175,25 @@ final class Clutch implements Listener {
                 it.remove();
             }
         }
+        for (Iterator<Map.Entry<UUID, Bounce>> it = bounces.entrySet().iterator(); it.hasNext(); ) {
+            var en = it.next();
+            Player p = Bukkit.getPlayer(en.getKey());
+            Bounce b = en.getValue();
+            if (p == null || now > b.expires || p.isSneaking()) {
+                it.remove();
+                continue;
+            }
+            double v = speed(p);
+            if (v > 0.05) {
+                b.speed = Math.max(b.speed, v); // still falling
+            } else if (p.isOnGround() && p.getLocation().subtract(0, 0.05, 0).getBlock().getType() == Material.SLIME_BLOCK) {
+                // Landed on the slime: bounce like vanilla (vertical speed reversed).
+                if (b.speed > 0.2) p.setVelocity(p.getVelocity().setY(b.speed));
+                it.remove();
+            } else if (lastY.containsKey(p.getUniqueId()) && lastY.get(p.getUniqueId())[1] < -0.05) {
+                it.remove(); // already going up, the client bounced by itself
+            }
+        }
         safeUntil.values().removeIf(t -> t < now);
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (!enabled.contains(p.getUniqueId())) continue;
@@ -197,7 +219,11 @@ final class Clutch implements Listener {
     private boolean tryTrigger(Player p, Armed a) {
         Ground g = ground(p, window(p));
         if (g == null) return false;
-        if (g.dist() > Math.max(2.0, speed(p) * 1.2 + 0.3)) return false;
+        double lead = 1.2;
+        // Blocks have to reach the client before it lands or there's nothing to land on (and no slime bounce),
+        // so place them a ping's worth of ticks earlier. They go in the space above the ground, so stay above it.
+        if (a.kind() == Kind.BLOCK) lead += p.getPing() / 50.0 + 1;
+        if (g.dist() > Math.max(2.0, speed(p) * lead + 0.3)) return false;
         ItemStack item = p.getInventory().getItem(a.hand());
         if (item.getType() != a.item()) return true; // switched items; give up
         if (perform(p, a, item, g.block().getRelative(BlockFace.UP))) {
@@ -226,6 +252,12 @@ final class Clutch implements Listener {
                 target.setType(a.item());
                 p.getWorld().playSound(at, target.getBlockData().getSoundGroup().getPlaceSound(), 1, 0.8f);
                 if (!creative) item.setAmount(item.getAmount() - 1);
+                if (a.item() == Material.SLIME_BLOCK) {
+                    Bounce b = new Bounce();
+                    b.speed = speed(p);
+                    b.expires = Bukkit.getCurrentTick() + 60;
+                    bounces.put(p.getUniqueId(), b);
+                }
             }
             case BOAT -> {
                 if (!free) return false;
@@ -301,6 +333,7 @@ final class Clutch implements Listener {
         UUID id = e.getPlayer().getUniqueId();
         armed.remove(id);
         mounts.remove(id);
+        bounces.remove(id);
         lastY.remove(id);
     }
 }

@@ -1,5 +1,5 @@
 name: FakeManhunt
-version: 1.3.0
+version: 1.3.1
 main: fakemanhunt.FakeManhunt
 api-version: '26.1'
 description: Manhunt tools - /save and /load the world, /qsave and /qload players, /immortal, /clutch, and boosted piglin bartering.
