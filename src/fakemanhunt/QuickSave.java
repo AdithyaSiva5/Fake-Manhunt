@@ -21,8 +21,8 @@ import java.util.List;
 
 /**
  * /qsave and /qload - save and restore just the players (position, health, hunger,
- * saturation, inventory and armor, XP, effects) plus the time and weather.
- * The world itself is not touched, so it's instant and nobody gets kicked.
+ * saturation, inventory and armor, XP, effects) plus the time and weather, and roll back
+ * blocks changed since the save (see {@link BlockRollback}). Nobody gets kicked.
  */
 final class QuickSave {
 
@@ -30,11 +30,14 @@ final class QuickSave {
     // Kept in the plugin folder so it survives /load and restarts.
     private final File file;
     private YamlConfiguration data;
+    private final BlockRollback blocks = new BlockRollback();
 
     QuickSave(FakeManhunt plugin) {
         this.plugin = plugin;
         this.file = new File(plugin.getDataFolder(), "quicksave.yml");
         this.data = YamlConfiguration.loadConfiguration(file);
+        if (data.isConfigurationSection("players")) blocks.start();
+        plugin.getServer().getPluginManager().registerEvents(blocks, plugin);
     }
 
     void save(CommandSender sender) {
@@ -64,6 +67,7 @@ final class QuickSave {
             s.set("weather-duration", w.getWeatherDuration());
         }
         data = yml;
+        blocks.reset();
         try {
             yml.save(file);
         } catch (IOException e) {
@@ -105,6 +109,8 @@ final class QuickSave {
             return;
         }
 
+        // Blocks first, so nobody gets teleported into a wall that was built later.
+        int blockCount = blocks.restore();
         int restored = 0;
         for (Player p : Bukkit.getOnlinePlayers()) {
             ConfigurationSection s = players.getConfigurationSection(p.getUniqueId().toString());
@@ -120,13 +126,18 @@ final class QuickSave {
                 World w = Bukkit.getWorld(name);
                 if (w == null) continue;
                 ConfigurationSection s = worlds.getConfigurationSection(name);
-                w.setFullTime(s.getLong("time"));
+                // The Nether and End have no clock, so their time can't be set.
+                try {
+                    w.setFullTime(s.getLong("time"));
+                } catch (IllegalArgumentException ignored) {
+                }
                 w.setStorm(s.getBoolean("storm"));
                 w.setThundering(s.getBoolean("thunder"));
                 w.setWeatherDuration(Math.max(1, s.getInt("weather-duration")));
             }
         }
-        Bukkit.broadcastMessage("§a[Manhunt] Quick load done (" + restored + " players).");
+        Bukkit.broadcastMessage("§a[Manhunt] Quick load done (" + restored + " players, "
+                + blockCount + " blocks).");
     }
 
     @SuppressWarnings("unchecked")

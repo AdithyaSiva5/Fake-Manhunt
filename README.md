@@ -9,7 +9,7 @@ Everything is in one jar, and every feature can be switched on or off in `config
 | Feature | What it does |
 |---|---|
 | **/save and /load** | Autosave is off. Progress only sticks when you run `/save`. `/load` kicks everyone, restores the world to the last save and restarts the server. |
-| **/qsave and /qload** | Instant player-only save. Puts everyone back where they were (position, health, hunger, saturation, inventory, armor, XP, effects, time and weather) without restarting or kicking anyone. Blocks are not rolled back. |
+| **/qsave and /qload** | Instant save. Puts everyone back where they were (position, health, hunger, saturation, inventory, armor, XP, effects, time and weather) and rolls back blocks changed since the save (chests keep their contents), without restarting or kicking anyone. Dropped items, XP, TNT, pearls and boats from after the save are removed. Mobs are not restored, and block changes are forgotten on restart. |
 | **/immortal** | Two modes. `damage`: you take hits (knockback, hurt sound, red flash) but never drop below half a heart, so PvP looks normal. `nodamage`: hits are cancelled with no hurt effect, so a failed clutch doesn't give it away. |
 | **/clutch** | Every clutch lands. Right-click with a water bucket, powder snow bucket, boat, slime block, hay bale, honey block, cobweb, scaffolding, twisting vines, ender pearl or wind charge while falling, and the server does the clutch right before you land. It still works if the click was a bit early, slightly off the block, or a held right-click that repeated too slowly. |
 | **Boosted bartering** | Piglins hand out ender pearls, fire resistance potions and obsidian far more often. Default pearl rate is 50% (vanilla is about 2%). |
@@ -42,8 +42,8 @@ Everything is in one jar, and every feature can be switched on or off in `config
 |---|---|---|
 | `/save` | Save the world as the new restore point. `/save-all` does the same thing. | `fakemanhunt.use` |
 | `/load` | Roll the world back to the last `/save`. Kicks everyone; rejoin after about 30 seconds. | `fakemanhunt.use` |
-| `/qsave` | Quick save of all online players, plus time and weather. Aliases: `/quicksave`, `/minisave`. | `fakemanhunt.use` |
-| `/qload [player]` | Instantly put everyone (or just one player) back to the last `/qsave`. Aliases: `/quickload`, `/miniload`. | `fakemanhunt.use` |
+| `/qsave` | Quick save of all online players, time and weather; block changes from now on can be rolled back. Aliases: `/quicksave`, `/minisave`. | `fakemanhunt.use` |
+| `/qload [player]` | Instantly put everyone back to the last `/qsave` and roll back blocks. With a player name, only that player is restored (blocks are left alone). Aliases: `/quickload`, `/miniload`. | `fakemanhunt.use` |
 | `/immortal [player]` | Toggle `damage` mode immortality for yourself or the named player. | `fakemanhunt.immortal` |
 | `/immortal damage\|nodamage\|off [player]` | Set a specific mode, or turn it off. | `fakemanhunt.immortal` |
 | `/clutch [player]` | Toggle clutch assist for yourself or the named player. | `fakemanhunt.clutch` |

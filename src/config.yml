@@ -20,9 +20,12 @@ save-load:
 # ----------------------------------------------------------
 # /qsave and /qload
 # ----------------------------------------------------------
-# Instant player-only save: position, health, hunger, saturation, inventory,
+# Instant save: position, health, hunger, saturation, inventory,
 # armor, XP, potion effects, ender chest, plus time and weather.
-# Blocks are NOT rolled back - use /save and /load for that.
+# Blocks changed since /qsave are rolled back too (chests keep their contents),
+# and items, XP, TNT, pearls and boats spawned since then are removed.
+# Block changes are kept in memory, so a restart forgets them.
+# Mobs are not restored - use /save and /load for a full rollback.
 quick-save:
   enabled: true
 
